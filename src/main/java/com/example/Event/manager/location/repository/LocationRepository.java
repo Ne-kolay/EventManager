@@ -1,4 +1,8 @@
 package com.example.Event.manager.location.repository;
 
-public class LocationRepository {
+import com.example.Event.manager.location.domain.*;
+import com.example.Event.manager.location.entity.*;
+import org.springframework.data.jpa.repository.*;
+
+public interface LocationRepository extends JpaRepository<LocationEntity, Long> {
 }
