@@ -1,11 +1,11 @@
 package com.example.Event.manager.location.service;
 
-import com.example.Event.manager.location.domain.*;
-import com.example.Event.manager.location.entity.*;
-import com.example.Event.manager.location.mapper.*;
-import com.example.Event.manager.location.repository.*;
-import jakarta.persistence.*;
-import org.springframework.stereotype.*;
+import com.example.Event.manager.location.domain.Location;
+import com.example.Event.manager.location.entity.LocationEntity;
+import com.example.Event.manager.location.mapper.LocationMapper;
+import com.example.Event.manager.location.repository.LocationRepository;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 

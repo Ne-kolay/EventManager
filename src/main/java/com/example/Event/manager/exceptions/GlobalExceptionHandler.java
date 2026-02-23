@@ -1,21 +1,22 @@
 package com.example.Event.manager.exceptions;
 
-import jakarta.persistence.*;
-import jakarta.servlet.http.*;
-import org.springframework.http.*;
-import org.springframework.web.bind.*;
-import org.springframework.web.bind.annotation.*;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.time.*;
-import java.util.stream.*;
+import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    //Validation exceptions
+    // Validation errors (400)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorMessageResponse handleValidationErrors(
+    public ResponseEntity<ErrorMessageResponse> handleValidationErrors(
             MethodArgumentNotValidException ex,
             HttpServletRequest request
     ) {
@@ -23,42 +24,45 @@ public class GlobalExceptionHandler {
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
                 .collect(Collectors.joining("; "));
 
-        return new ErrorMessageResponse(
+        ErrorMessageResponse body = new ErrorMessageResponse(
                 message,
                 HttpStatus.BAD_REQUEST.value(),
                 request.getRequestURI(),
                 LocalDateTime.now()
         );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
-    //Data retrieving exceptions
+    // Not found errors (404)
     @ExceptionHandler(EntityNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorMessageResponse handleNotFound(
+    public ResponseEntity<ErrorMessageResponse> handleNotFound(
             EntityNotFoundException ex,
             HttpServletRequest request
     ) {
-        return new ErrorMessageResponse(
+        ErrorMessageResponse body = new ErrorMessageResponse(
                 ex.getMessage(),
                 HttpStatus.NOT_FOUND.value(),
                 request.getRequestURI(),
                 LocalDateTime.now()
         );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
-    //Other exceptions
-//    @ExceptionHandler(Exception.class)
-//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-//    public ErrorMessageResponse handleGeneral(
-//            Exception ex,
-//            HttpServletRequest request
-//    ) {
-//        return new ErrorMessageResponse(
-//                "Internal server error",
-//                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-//                request.getRequestURI(),
-//                LocalDateTime.now()
-//        );
-//    }
-}
+    // General errors (500)
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorMessageResponse> handleGeneral(
+            Exception ex,
+            HttpServletRequest request
+    ) {
+        ErrorMessageResponse body = new ErrorMessageResponse(
+                "Internal server error",
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                request.getRequestURI(),
+                LocalDateTime.now()
+        );
 
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
+    }
+}

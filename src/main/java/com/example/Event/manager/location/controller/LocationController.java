@@ -1,14 +1,21 @@
 package com.example.Event.manager.location.controller;
 
-import com.example.Event.manager.location.domain.*;
-import com.example.Event.manager.location.dto.*;
-import com.example.Event.manager.location.mapper.*;
-import com.example.Event.manager.location.repository.*;
-import com.example.Event.manager.location.service.*;
-import jakarta.validation.*;
-import org.springframework.beans.factory.annotation.*;
-import org.springframework.http.*;
-import org.springframework.web.bind.annotation.*;
+import com.example.Event.manager.location.domain.Location;
+import com.example.Event.manager.location.dto.LocationDTO;
+import com.example.Event.manager.location.mapper.LocationMapper;
+import com.example.Event.manager.location.service.LocationService;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
+
 
 import java.util.*;
 
