@@ -49,6 +49,21 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
+    @ExceptionHandler(LoginAlreadyExistsException.class)
+    public ResponseEntity<ErrorMessageResponse> handleLoginAlreadyExists(
+            LoginAlreadyExistsException ex,
+            HttpServletRequest request
+    ) {
+        ErrorMessageResponse body = new ErrorMessageResponse(
+                "Login already exists",
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+
+
     // General errors (500)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorMessageResponse> handleGeneral(
