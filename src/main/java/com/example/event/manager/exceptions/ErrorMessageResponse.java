@@ -7,5 +7,3 @@ public record ErrorMessageResponse(
         String detailedMessage,
         LocalDateTime dateTime
 ) {}
-
-

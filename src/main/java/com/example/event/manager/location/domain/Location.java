@@ -1,6 +1,5 @@
 package com.example.event.manager.location.domain;
 
-
 public class Location {
 
     private Long id;

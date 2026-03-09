@@ -7,8 +7,10 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
@@ -19,9 +21,15 @@ import java.util.Map;
 @Component
 public class JwtUtil {
 
-    //TODO: extract key and expiration to app properties
-    private final String SECRET_KEY = "your-secure-secret-key-your-secure-secret-key";
-    private final long EXPIRATION_TIME = 1000 * 60 * 60 * 2;
+    private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
+    private final String SECRET_KEY;
+    private final long EXPIRATION_TIME;
+
+    public JwtUtil(@Value("${jwt.secret}") String secretKey,
+                   @Value("${jwt.expiration}") long expirationTime) {
+        this.SECRET_KEY = secretKey;
+        this.EXPIRATION_TIME = expirationTime;
+    }
 
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
@@ -50,11 +58,11 @@ public class JwtUtil {
                     .parseClaimsJws(token);
             return true;
         } catch (ExpiredJwtException e) {
-            System.out.println("JWT токен просрочен: " + e.getMessage());
+            logger.error("JWT токен просрочен: {}", e.getMessage());
         } catch (MalformedJwtException e) {
-            System.out.println("Невалидный JWT токен: " + e.getMessage());
+            logger.error("Невалидный JWT токен: {}", e.getMessage());
         } catch (Exception e) {
-            System.out.println("Ошибка валидации JWT: " + e.getMessage());
+            logger.error("Ошибка валидации JWT: {}", e.getMessage());
         }
         return false;
     }

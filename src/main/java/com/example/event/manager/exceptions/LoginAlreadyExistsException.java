@@ -5,4 +5,3 @@ public class LoginAlreadyExistsException extends RuntimeException {
         super("User with login '" + login + "' already exists");
     }
 }
-
