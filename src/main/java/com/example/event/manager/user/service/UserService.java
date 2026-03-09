@@ -29,7 +29,7 @@ public class UserService {
     }
 
     public User register(User user) {
-        if (userRepository.existsByLogin(user.getLogin())) {
+        if (isUserExistByLogin(user.getLogin())) {
             throw new LoginAlreadyExistsException(user.getLogin());
         }
         UserEntity userToSave = userMapper.toEntity(user);
@@ -56,9 +56,14 @@ public class UserService {
                 () -> new EntityNotFoundException("User with id " + id + " does not exist"));
         return userMapper.toDomain(userEntity);
     }
+
     public User getUserByLogin(String login) {
         UserEntity userEntity = userRepository.findByLogin(login).orElseThrow(
                 () -> new EntityNotFoundException("User with login " + login + " does not exist"));
         return userMapper.toDomain(userEntity);
+    }
+
+    public Boolean isUserExistByLogin(String login) {
+        return userRepository.existsByLogin(login);
     }
 }

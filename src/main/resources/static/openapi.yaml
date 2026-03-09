@@ -1326,7 +1326,7 @@ components:
         jwtToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
       properties:
         jwtToken:
-          description: JWT token for authenticated user
+          description: JWT jwtToken for authenticated user
           example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
           type: string
       type: object

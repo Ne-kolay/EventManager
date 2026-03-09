@@ -8,4 +8,3 @@ public record UserRegistrationResponseDTO(
         int age,
         Role role
 ) { }
-
