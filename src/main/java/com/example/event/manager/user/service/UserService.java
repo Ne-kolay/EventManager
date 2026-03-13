@@ -1,5 +1,6 @@
 package com.example.event.manager.user.service;
 
+import com.example.event.manager.exceptions.InvalidCredentialsException;
 import com.example.event.manager.exceptions.LoginAlreadyExistsException;
 import com.example.event.manager.security.JwtUtil;
 import com.example.event.manager.user.domain.User;
@@ -41,10 +42,10 @@ public class UserService {
     public String login(String login, String rawPassword) {
 
         UserEntity entity = userRepository.findByLogin(login)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+                .orElseThrow(InvalidCredentialsException::new);
 
         if (!passwordEncoder.matches(rawPassword, entity.getPassword())) {
-            throw new IllegalArgumentException("Invalid password");
+            throw new InvalidCredentialsException();
         }
 
         User domain = userMapper.toDomain(entity);
@@ -63,7 +64,7 @@ public class UserService {
         return userMapper.toDomain(userEntity);
     }
 
-    public Boolean isUserExistByLogin(String login) {
+    public boolean isUserExistByLogin(String login) {
         return userRepository.existsByLogin(login);
     }
 }

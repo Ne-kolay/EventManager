@@ -1,6 +1,5 @@
 package com.example.event.manager.user.controller;
 
-import com.example.event.manager.security.JwtUtil;
 import com.example.event.manager.user.domain.User;
 import com.example.event.manager.user.dto.UserCredentials;
 import com.example.event.manager.user.dto.JwtResponse;
@@ -25,13 +24,11 @@ public class UserController {
 
     private final UserService userService;
     private final UserMapper userMapper;
-    private final JwtUtil jwtUtil;
 
     public UserController(UserService userService,
-                          UserMapper userMapper, JwtUtil jwtUtil) {
+                          UserMapper userMapper) {
         this.userService = userService;
         this.userMapper = userMapper;
-        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping

@@ -22,30 +22,29 @@ import java.util.Map;
 public class JwtUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
-    private final String SECRET_KEY;
-    private final long EXPIRATION_TIME;
+    private final String secretKey;
+    private final long expirationTime;
 
     public JwtUtil(@Value("${jwt.secret}") String secretKey,
                    @Value("${jwt.expiration}") long expirationTime) {
-        this.SECRET_KEY = secretKey;
-        this.EXPIRATION_TIME = expirationTime;
+        this.secretKey = secretKey;
+        this.expirationTime = expirationTime;
     }
 
     private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
+        return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
     public String generateToken(User user) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("roles", user.getRole().name());
         claims.put("userId", user.getId());
-        claims.put("generatedAt", System.currentTimeMillis());
 
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(user.getLogin())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }

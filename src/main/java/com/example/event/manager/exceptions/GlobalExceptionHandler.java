@@ -49,6 +49,21 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
+    //Invalid credentials (401)
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ErrorMessageResponse> handleInvalidCredentials(
+            InvalidCredentialsException ex,
+            HttpServletRequest request
+    ) {
+        ErrorMessageResponse body = new ErrorMessageResponse(
+                "Invalid credentials",
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+    }
+
+
     @ExceptionHandler(LoginAlreadyExistsException.class)
     public ResponseEntity<ErrorMessageResponse> handleLoginAlreadyExists(
             LoginAlreadyExistsException ex,
@@ -73,7 +88,7 @@ public class GlobalExceptionHandler {
         log.error("Unhandled exception", ex);
         ErrorMessageResponse body = new ErrorMessageResponse(
                 "Internal server error",
-                ex.getMessage(),
+                "Unexpected error occurred",
                 LocalDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
