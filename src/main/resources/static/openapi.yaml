@@ -1419,7 +1419,7 @@ components:
       enum:
       - WAIT_START
       - STARTED
-      - CLOSED
+      - CANCELLED
       - FINISHED
       example: WAIT_START
       type: string
