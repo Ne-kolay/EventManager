@@ -13,7 +13,7 @@ import java.util.List;
 
 public interface EventRepository extends JpaRepository<EventEntity, Long> {
 
-    // Поиск по фильтрам
+    // Search with filters
     @Query("""
             SELECT e FROM EventEntity e
             WHERE (:name IS NULL OR e.name LIKE %:name%)
@@ -43,6 +43,23 @@ public interface EventRepository extends JpaRepository<EventEntity, Long> {
     );
 
     List<EventEntity> findByOwnerId(Long ownerId);
+
+    boolean existsByLocationIdAndStatusNot(Long locationId, EventStatus status);
+
+    @Query(value = """
+            SELECT COUNT(*) > 0 FROM events
+            WHERE location_id = :locationId
+            AND id != :excludeId 
+            AND status != 'CANCELLED'
+            AND date < :end
+            AND date + (duration * INTERVAL '1 minute') > :start
+            """, nativeQuery = true)
+    boolean existsOverlappingEvent(
+            @Param("locationId") Long locationId,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end,
+            @Param("excludeId") Long excludeId //for excluding the updating event itself
+    );
 
     //SCHEDULER METHODS
     @Query("SELECT e.id FROM EventEntity e WHERE e.date <= :now AND e.status = 'WAIT_START'")

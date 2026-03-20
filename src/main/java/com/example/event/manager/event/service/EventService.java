@@ -20,10 +20,9 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -55,6 +54,12 @@ public class EventService {
             throw new IllegalStateException(
                     "maxPlaces (" + dto.maxPlaces() + ") exceeds location capacity (" + location.getCapacity() + ")"
             );
+        }
+
+        LocalDateTime start = dto.date();
+        LocalDateTime end = dto.date().plusMinutes(dto.duration());
+        if (eventRepository.existsOverlappingEvent(dto.locationId(), start, end, -1L /* ничего не исключаем */)) {
+            throw new IllegalStateException("Location is already booked for this time slot");
         }
 
         Event event = eventMapper.toDomain(dto);
@@ -101,6 +106,15 @@ public class EventService {
         Long locationId = dto.locationId() != null ? dto.locationId() : entity.getLocationId();
         LocationEntity location = locationRepository.findById(locationId)
                 .orElseThrow(() -> new EntityNotFoundException("Location with id " + locationId + " not found"));
+
+        if (dto.date() != null || dto.duration() != null || dto.locationId() != null) {
+            LocalDateTime start = dto.date() != null ? dto.date() : entity.getDate();
+            Integer duration = dto.duration() != null ? dto.duration() : entity.getDuration();
+            LocalDateTime end = start.plusMinutes(duration);
+            if (eventRepository.existsOverlappingEvent(locationId, start, end, entity.getId())) {
+                throw new IllegalStateException("Location is already booked for this time slot");
+            }
+        }
 
         if (dto.name() != null) entity.setName(dto.name());
         if (dto.date() != null) entity.setDate(dto.date());
@@ -194,8 +208,7 @@ public class EventService {
                 .toList();
     }
 
-    // --- helpers ---
-
+    //HELPERS
     private UserEntity getCurrentUser() {
         String login = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByLogin(login)

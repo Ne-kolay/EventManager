@@ -1,5 +1,7 @@
 package com.example.event.manager.location.service;
 
+import com.example.event.manager.event.repository.EventRepository;
+import com.example.event.manager.event.status.EventStatus;
 import com.example.event.manager.location.domain.Location;
 import com.example.event.manager.location.entity.LocationEntity;
 import com.example.event.manager.location.mapper.LocationMapper;
@@ -14,10 +16,14 @@ public class LocationService {
 
     private final LocationRepository locationRepository;
     private final LocationMapper locationMapper;
+    private final EventRepository eventRepository;
 
-    public LocationService(LocationRepository locationRepository, LocationMapper locationMapper) {
+    public LocationService(LocationRepository locationRepository,
+                           LocationMapper locationMapper,
+                           EventRepository eventRepository) {
         this.locationRepository = locationRepository;
         this.locationMapper = locationMapper;
+        this.eventRepository = eventRepository;
     }
 
     public Location getById(Long id) {
@@ -52,6 +58,9 @@ public class LocationService {
     public void deleteLocation(Long id) {
         if (!locationRepository.existsById(id)) {
             throw new EntityNotFoundException("Location with id: " + id + " not found");
+        }
+        if (eventRepository.existsByLocationIdAndStatusNot(id, EventStatus.CANCELLED)) {
+            throw new IllegalStateException("Cannot delete location with active events");
         }
         locationRepository.deleteById(id);
     }

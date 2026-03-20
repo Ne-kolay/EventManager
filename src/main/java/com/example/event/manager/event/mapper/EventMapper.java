@@ -19,7 +19,7 @@ public class EventMapper {
                 dto.name(),
                 null,
                 dto.maxPlaces(),
-                0, //при создании, занятых мест точно 0
+                0,
                 dto.date(),
                 dto.cost(),
                 dto.duration(),
