@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @OpenAPIDefinition(security = {@SecurityRequirement(name = "bearerAuth")})
 @SecurityScheme(
@@ -15,6 +16,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
         bearerFormat = "JWT"
 )
 @SpringBootApplication
+@EnableScheduling
 public class EventManagerApplication {
 
 	public static void main(String[] args) {

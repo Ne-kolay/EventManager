@@ -1,7 +1,10 @@
 package com.example.event.manager.user.mapper;
 
 import com.example.event.manager.user.domain.User;
-import com.example.event.manager.user.dto.*;
+import com.example.event.manager.user.dto.JwtResponse;
+import com.example.event.manager.user.dto.UserDTO;
+import com.example.event.manager.user.dto.UserRegistrationRequestDTO;
+import com.example.event.manager.user.dto.UserRegistrationResponseDTO;
 import com.example.event.manager.user.entity.UserEntity;
 import com.example.event.manager.common.Role;
 import org.springframework.stereotype.Component;

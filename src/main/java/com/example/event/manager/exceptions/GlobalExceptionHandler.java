@@ -79,6 +79,34 @@ public class GlobalExceptionHandler {
     }
 
 
+    // Forbidden (403)
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ErrorMessageResponse> handleForbidden(
+            ForbiddenException ex,
+            HttpServletRequest request
+    ) {
+        ErrorMessageResponse body = new ErrorMessageResponse(
+                "Forbidden",
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
+    }
+
+    // Business rule violations (400)
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ErrorMessageResponse> handleIllegalState(
+            IllegalStateException ex,
+            HttpServletRequest request
+    ) {
+        ErrorMessageResponse body = new ErrorMessageResponse(
+                "Bad request",
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
     // General errors (500)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorMessageResponse> handleGeneral(
