@@ -7,7 +7,6 @@ import com.example.event.manager.event.dto.EventUpdateRequestDTO;
 import com.example.event.manager.event.mapper.EventMapper;
 import com.example.event.manager.event.service.EventService;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +16,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -34,7 +34,17 @@ public class EventController {
 
     @PostMapping
     public ResponseEntity<EventDTO> createEvent(@RequestBody @Valid EventCreateRequestDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(eventMapper.toDto(eventService.createEvent(dto)));
+        EventDTO created = eventMapper.toDto(eventService.createEvent(dto));
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(created.id())
+                .toUri();
+
+        return ResponseEntity
+                .created(location)
+                .body(created);
     }
 
     @GetMapping("/{eventId}")

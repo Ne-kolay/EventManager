@@ -16,9 +16,10 @@ public class EventStatusScheduledUpdater {
 
     public EventStatusScheduledUpdater(EventRepository eventRepository) {
         this.eventRepository = eventRepository;
+
     }
 
-    @Scheduled(fixedRate = 60000, initialDelay = 60000)
+    @Scheduled(fixedRateString = "${scheduler.rate}", initialDelayString = "${scheduler.delay}")
     @Transactional
     public void updateStatuses() {
         LocalDateTime now = LocalDateTime.now();
