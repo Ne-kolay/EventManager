@@ -1,5 +1,6 @@
 package com.example.event.manager.exceptions;
 
+import com.example.eventcommon.ErrorMessageResponse;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.LoggerFactory;

@@ -3,6 +3,7 @@ package com.example.eventnotificator.notification.controller;
 import com.example.eventnotificator.notification.dto.MarkAsReadRequestDTO;
 import com.example.eventnotificator.notification.dto.NotificationResponseDTO;
 import com.example.eventnotificator.notification.service.NotificationService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,7 +29,7 @@ public class NotificationController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> markAsRead(@RequestBody MarkAsReadRequestDTO request) {
+    public ResponseEntity<Void> markAsRead(@Valid @RequestBody MarkAsReadRequestDTO request) {
         notificationService.markAsRead(request);
         return ResponseEntity.ok().build();
     }

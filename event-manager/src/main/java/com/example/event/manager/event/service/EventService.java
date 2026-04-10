@@ -28,6 +28,7 @@ import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.UUID;
 
 @Service
@@ -169,12 +170,11 @@ public class EventService {
         if (entity.getStatus() != EventStatus.WAIT_START) {
             throw new IllegalStateException("Cannot cancel event with status: " + entity.getStatus());
         }
-        EventStatus oldStatus = entity.getStatus();
         entity.setStatus(EventStatus.CANCELLED);
         eventRepository.save(entity);
 
         publishEventChange(entity, getCurrentUser().getId(),
-                List.of(new ChangeItem("status", oldStatus.name(), EventStatus.CANCELLED.name())));
+                List.of(new ChangeItem("status", EventStatus.WAIT_START.name(), EventStatus.CANCELLED.name())));
     }
 
     @Transactional
@@ -237,7 +237,7 @@ public class EventService {
     private void publishEventChange(EventEntity entity, Long changedById, List<ChangeItem> changes) {
         List<Long> subscribers = registrationRepository.findByEventId(entity.getId()).stream()
                 .map(RegistrationEntity::getUserId)
-                .collect(java.util.stream.Collectors.toList());
+                .collect(Collectors.toList());
         if (!subscribers.contains(entity.getOwnerId())) {
             subscribers.add(entity.getOwnerId());
         }

@@ -1,5 +1,6 @@
 package com.example.event.manager.exceptions;
 
+import com.example.eventcommon.ErrorMessageResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
