@@ -69,7 +69,7 @@ public class NotificationService {
     }
 
     private String buildMessage(NotificationEntity entity) {
-        return "Мероприятие #" + entity.getPayload().getEventId() + " было изменено";
+        return "Event #" + entity.getPayload().getEventId() + " was changed";
     }
 
     private Long getCurrentUserId() {

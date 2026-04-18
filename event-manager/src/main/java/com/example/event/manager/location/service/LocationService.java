@@ -10,6 +10,9 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.cache.annotation.Cacheable;
+
+import java.util.List;
 
 @Service
 public class LocationService {
@@ -26,6 +29,7 @@ public class LocationService {
         this.eventRepository = eventRepository;
     }
 
+    @Cacheable(cacheNames = "locations", key = "'id:' + #id")
     public Location getById(Long id) {
         LocationEntity locationEntity = locationRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Location with id: " + id + " not found")
@@ -53,6 +57,13 @@ public class LocationService {
     public Page<Location> getLocations(Pageable pageable) {
         return locationRepository.findAll(pageable)
                 .map(locationMapper::toDomain);
+    }
+
+    @Cacheable(cacheNames = "locations", key = "'all'")
+    public List<Location> getAllLocations() {
+        return locationRepository.findAll().stream()
+                .map(locationMapper::toDomain)
+                .toList();
     }
 
     public void deleteLocation(Long id) {
