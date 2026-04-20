@@ -17,10 +17,8 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/locations")
@@ -36,18 +34,15 @@ public class LocationController {
 
     @GetMapping("/{id}")
     public LocationResponseDTO getLocationById(@PathVariable Long id) {
-        Location location = locationService.getById(id);
+        Location location = locationService.getLocationById(id);
         return locationMapper.toResponse(location);
     }
 
     @GetMapping
-    public Page<LocationResponseDTO> getLocations(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size
-    ) {
-        Pageable pageable = PageRequest.of(page, size);
-        return locationService.getLocations(pageable)
-                .map(locationMapper::toResponse);
+    public List<LocationResponseDTO> getLocations() {
+        return locationService.getAllLocations().stream()
+                .map(locationMapper::toResponse)
+                .toList();
     }
 
     @PostMapping

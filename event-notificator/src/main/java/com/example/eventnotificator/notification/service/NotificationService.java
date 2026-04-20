@@ -21,11 +21,13 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final ObjectMapper objectMapper;
+    private final NotificationCounterService notificationCounterService;
 
     public NotificationService(NotificationRepository notificationRepository,
-                               ObjectMapper objectMapper) {
+                               ObjectMapper objectMapper, NotificationCounterService notificationCounterService) {
         this.notificationRepository = notificationRepository;
         this.objectMapper = objectMapper;
+        this.notificationCounterService = notificationCounterService;
     }
 
     public List<NotificationResponseDTO> getUnreadNotifications() {
@@ -47,6 +49,7 @@ public class NotificationService {
             n.setReadAt(now);
         });
         notificationRepository.saveAll(notifications);
+        notificationCounterService.syncUnreadFromDatabase(userId);
     }
 
     private NotificationResponseDTO toResponseDTO(NotificationEntity entity) {

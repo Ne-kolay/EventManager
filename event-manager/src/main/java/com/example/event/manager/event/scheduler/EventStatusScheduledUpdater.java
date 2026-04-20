@@ -8,6 +8,7 @@ import com.example.event.manager.event.status.EventStatus;
 import com.example.event.manager.kafka.EventChangeSender;
 import com.example.eventcommon.kafka.ChangeItem;
 import com.example.eventcommon.kafka.EventChangeKafkaMessage;
+import org.springframework.cache.CacheManager;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,13 +26,15 @@ public class EventStatusScheduledUpdater {
     private final EventRepository eventRepository;
     private final RegistrationRepository registrationRepository;
     private final EventChangeSender eventChangeSender;
+    private final CacheManager cacheManager;
 
     public EventStatusScheduledUpdater(EventRepository eventRepository,
                                        RegistrationRepository registrationRepository,
-                                       EventChangeSender eventChangeSender) {
+                                       EventChangeSender eventChangeSender, CacheManager cacheManager) {
         this.eventRepository = eventRepository;
         this.registrationRepository = registrationRepository;
         this.eventChangeSender = eventChangeSender;
+        this.cacheManager = cacheManager;
     }
 
     @Scheduled(fixedRateString = "${scheduler.rate}", initialDelayString = "${scheduler.delay}")
@@ -56,6 +59,7 @@ public class EventStatusScheduledUpdater {
         for (EventEntity event : events) {
             event.setStatus(newStatus);
             eventRepository.save(event);
+            cacheManager.getCache("events").evict("id:" + event.getId());
 
             List<Long> subscribers = new ArrayList<>(
                     subscribersByEventId.getOrDefault(event.getId(), new ArrayList<>())
@@ -64,6 +68,7 @@ public class EventStatusScheduledUpdater {
                 subscribers.add(event.getOwnerId());
             }
 
+            //TODO: use Outbox pattern to avoid notification inconsistency in case of rollback immediately after sending
             eventChangeSender.send(new EventChangeKafkaMessage(
                     UUID.randomUUID(),
                     "EVENT_UPDATED",
