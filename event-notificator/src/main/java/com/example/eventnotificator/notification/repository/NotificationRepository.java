@@ -17,7 +17,7 @@ public interface NotificationRepository extends JpaRepository<NotificationEntity
     List<NotificationEntity> findByIdInAndUserId(List<Long> ids, Long userId);
 
     @Modifying
-    @Query("DELETE FROM NotificationEntity n WHERE n.createdAt < :cutoff")
+    @Query("DELETE FROM NotificationEntity n WHERE n.createdAt < :cutoff AND n.isRead = true")
     void deleteByCreatedAtBefore(@Param("cutoff") LocalDateTime cutoff);
 
     long countByUserIdAndIsReadFalse(Long userId);
