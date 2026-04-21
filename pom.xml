@@ -12,7 +12,7 @@
 
     <groupId>com.example</groupId>
     <artifactId>event-manager-platform</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>pom</packaging>
     <name>event-manager-platform</name>
     <description>Event Manager Platform</description>
