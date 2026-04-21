@@ -20,6 +20,10 @@ import com.example.event.manager.user.repository.UserRepository;
 import com.example.eventcommon.kafka.ChangeItem;
 import com.example.eventcommon.kafka.EventChangeKafkaMessage;
 import jakarta.persistence.EntityNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,19 +44,23 @@ public class EventService {
     private final UserRepository userRepository;
     private final EventMapper eventMapper;
     private final EventChangeSender eventChangeSender;
+    private final EventCacheService eventCacheService;
+    private final Logger log = LoggerFactory.getLogger(EventService.class);
 
     public EventService(EventRepository eventRepository,
                         RegistrationRepository registrationRepository,
                         LocationRepository locationRepository,
                         UserRepository userRepository,
                         EventMapper eventMapper,
-                        EventChangeSender eventChangeSender) {
+                        EventChangeSender eventChangeSender,
+                        EventCacheService eventCacheService) {
         this.eventRepository = eventRepository;
         this.registrationRepository = registrationRepository;
         this.locationRepository = locationRepository;
         this.userRepository = userRepository;
         this.eventMapper = eventMapper;
         this.eventChangeSender = eventChangeSender;
+        this.eventCacheService = eventCacheService;
     }
 
     public Event createEvent(EventCreateRequestDTO dto) {
@@ -80,9 +88,14 @@ public class EventService {
     }
 
     public Event getEventById(Long id) {
-        EventEntity entity = eventRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Event with id " + id + " not found"));
-        return eventMapper.toDomain(entity);
+        try {
+            return eventCacheService.getEventById(id);
+        } catch (RedisConnectionFailureException ex) {
+            log.warn("Redis is unavailable, fallback to DB for event {}", id, ex);
+            return eventRepository.findById(id)
+                    .map(eventMapper::toDomain)
+                    .orElseThrow(() -> new EntityNotFoundException("Event with id " + id + " not found"));
+        }
     }
 
     public Page<Event> getAllEvents(Pageable pageable) {
@@ -106,6 +119,8 @@ public class EventService {
         ).stream().map(eventMapper::toDomain).toList();
     }
 
+    @Transactional
+    @CacheEvict(cacheNames = "events", key = "'id:' + #id")
     public Event updateEvent(Long id, EventUpdateRequestDTO dto) {
         EventEntity entity = eventRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Event with id " + id + " not found"));
@@ -163,6 +178,8 @@ public class EventService {
         return eventMapper.toDomain(saved);
     }
 
+    @Transactional
+    @CacheEvict(cacheNames = "events", key = "'id:' + #id")
     public void deleteEvent(Long id) {
         EventEntity entity = eventRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Event with id " + id + " not found"));
@@ -178,6 +195,7 @@ public class EventService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = "events", key = "'id:' + #eventId")
     public void registerForEvent(Long eventId) {
         EventEntity event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Event with id " + eventId + " not found"));
@@ -201,6 +219,7 @@ public class EventService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = "events", key = "'id:' + #eventId")
     public void cancelRegistration(Long eventId) {
         EventEntity event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Event with id " + eventId + " not found"));

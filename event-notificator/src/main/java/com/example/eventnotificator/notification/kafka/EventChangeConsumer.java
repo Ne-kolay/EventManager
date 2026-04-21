@@ -5,6 +5,7 @@ import com.example.eventnotificator.notification.entity.NotificationEntity;
 import com.example.eventnotificator.notification.entity.NotificationEventPayloadEntity;
 import com.example.eventnotificator.notification.repository.NotificationEventPayloadRepository;
 import com.example.eventnotificator.notification.repository.NotificationRepository;
+import com.example.eventnotificator.notification.service.NotificationCounterService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,13 +23,15 @@ public class EventChangeConsumer {
 
     private final NotificationEventPayloadRepository payloadRepository;
     private final NotificationRepository notificationRepository;
+    private final NotificationCounterService notificationCounterService;
     private final ObjectMapper objectMapper;
 
     public EventChangeConsumer(NotificationEventPayloadRepository payloadRepository,
-                               NotificationRepository notificationRepository,
+                               NotificationRepository notificationRepository, NotificationCounterService notificationCounterService,
                                ObjectMapper objectMapper) {
         this.payloadRepository = payloadRepository;
         this.notificationRepository = notificationRepository;
+        this.notificationCounterService = notificationCounterService;
         this.objectMapper = objectMapper;
     }
 
@@ -60,6 +63,8 @@ public class EventChangeConsumer {
                 })
                 .toList();
         notificationRepository.saveAll(notifications);
+        message.subscribers().forEach(userId ->
+                notificationCounterService.incrementUnread(userId, 1));
 
         log.info("Processed event change: eventId={}, subscribers={}",
                 message.eventId(), message.subscribers().size());
